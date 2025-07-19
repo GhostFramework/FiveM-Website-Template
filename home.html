@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FiveM Purple Server</title>
+    <!-- TailwindCSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for enhanced typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: "#7e3af2",   // deep purple
+              secondary: "#a78bfa", // soft purple
+              accent: "#c084fc",
+              dark: "#1f2937",
+              light: "#f3f4f6",
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+              heading: ['Poppins', 'ui-sans-serif', 'system-ui']
+            },
+            keyframes: {
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' }
+              },
+              pulseSlow: {
+                '0%, 100%': { transform: 'scale(1)' },
+                '50%': { transform: 'scale(1.05)' }
+              }
+            },
+            animation: {
+              fadeInUp: 'fadeInUp 0.8s ease-out forwards',
+              pulseSlow: 'pulseSlow 3s ease-in-out infinite',
+            }
+          },
+        },
+      }
+    </script>
+    <!-- Minimal script for mobile menu toggle -->
+    <script>
+      function toggleMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+      }
+    </script>
+    <style>
+      /* Parallax background effect for hero section */
+      .parallax {
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+      /* Ensure the particle canvas covers the hero section */
+      #particle-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 0;
+      }
+    </style>
+  </head>
+  <body class="bg-dark text-light relative">
+    <!-- Navigation Progress Bar -->
+    <div class="h-1 bg-primary/20 fixed top-0 left-0 right-0 z-50">
+        <div id="progress-bar" class="h-full bg-gradient-to-r from-primary to-accent transition-all duration-300" style="width: 0%"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="fixed w-full z-40 bg-dark/90 backdrop-blur-xl border-b border-primary/10 shadow-2xl transition-all duration-300">
+        <div class="container mx-auto flex items-center justify-between px-4 lg:px-8 py-3">
+            <!-- Logo with Icon -->
+            <a href="#" class="flex items-center space-x-3 group">
+                <svg class="w-8 h-8 text-primary group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                <span class="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent tracking-tighter hover:scale-105 transition-transform">
+                    GhostNodes RP
+                </span>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <div class="flex space-x-8">
+                    <a href="home.html" class="nav-link relative group">
+                        Home
+                        <div class="absolute bottom-0 left-0 h-0.5 bg-primary transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                    </a>
+                      <a href="#gallery" class="nav-link relative group">
+                          Gallery
+                          <div class="absolute bottom-0 left-0 h-0.5 bg-primary transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                      </a>
+                    <!-- Repeat for other links -->
+                </div>
+                <a href="#" class="px-6 py-2.5 bg-gradient-to-r from-primary to-accent rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all group">
+                    <span class="group-hover:animate-pulse">Join IP</span>
+                </a>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <button @click="toggleMenu" class="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-colors">
+                <svg class="w-8 h-8 transition-transform" :class="{ 'rotate-90': menuOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="fixed inset-0 z-50 bg-dark/95 backdrop-blur-2xl transition-all duration-500 ease-in-out transform"
+            :class="{ 'opacity-0 invisible translate-y-4': !menuOpen, 'opacity-100 visible translate-y-0': menuOpen }"
+            x-cloak>
+            <div class="container h-full flex flex-col items-center justify-center space-y-8 text-center">
+                <!-- Mobile Links -->
+                <a href="home.html" class="text-3xl font-medium hover:text-primary transition-colors" @click="menuOpen = false">Home</a>
+                <!-- Repeat for other links -->
+
+                <button @click="menuOpen = false" class="absolute top-6 right-6 p-2 text-2xl hover:text-primary transition-colors">
+                    ✕
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <script>
+        // Alpine.js implementation
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('navbar', () => ({
+                menuOpen: false,
+                scrollProgress: 0,
+                
+                toggleMenu() {
+                    this.menuOpen = !this.menuOpen
+                },
+
+                updateProgress() {
+                    const winScroll = document.body.scrollTop || document.documentElement.scrollTop
+                    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight
+                    this.scrollProgress = (winScroll / height) * 100
+                    document.getElementById('progress-bar').style.width = this.scrollProgress + '%'
+                }
+            }))
+        })
+
+        // Scroll progress handler
+        window.onscroll = () => {
+            const progress = document.getElementById('progress-bar')
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight
+            const scrolled = (winScroll / height) * 100
+            progress.style.width = scrolled + "%"
+        }
+    </script>
+
+    <style>
+        .nav-link {
+            @apply text-gray-300 hover:text-primary transition-colors py-2 px-4;
+        }
+
+        .mobile-nav-link {
+            @apply text-2xl font-medium text-gray-300 hover:text-primary transition-colors py-3;
+        }
+
+        [x-cloak] { display: none !important; }
+    </style>
+</body>
+    <!-- About Section -->
+<section id="about" class="relative py-24 overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="absolute top-0 left-0 w-full h-full opacity-5 z-0">
+    <div class="pattern-dots pattern-primary pattern-size-6 pattern-opacity-20"></div>
+  </div>
+  
+  <div class="container mx-auto px-4 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <!-- Image Section -->
+<div class="relative group lg:order-2 animate-fadeInUp pb-10">
+  <div class="absolute -inset-4 bg-gradient-to-r from-primary to-accent rounded-2xl transform -skew-y-3 opacity-30 group-hover:opacity-50 transition duration-500"></div>
+  <img 
+    src="images/fivembg.jpg" 
+    alt="City Roleplay Server" 
+    class="relative z-10 rounded-2xl shadow-2xl transform transition duration-500 group-hover:scale-102"
+  >
+  <!-- Badge overlay -->
+  <div class="absolute bottom-0 right-0 z-20 bg-dark/95 backdrop-blur px-6 py-3 rounded-full shadow-lg border border-primary/20 transform translate-y-1/2 translate-x-1/4">
+    <div class="flex items-center gap-2">
+      <div class="h-3 w-3 bg-green-400 rounded-full animate-pulse"></div>
+      <span class="font-semibold text-primary">250+ Average Players</span>
+    </div>
+  </div>
+</div>
+
+      <!-- Content Section -->
+      <div class="lg:order-1 space-y-8">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6 animate-fadeInUp">
+          <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+            Welcome to Ghost Roleplay 
+          </span>
+        </h2>
+        
+        <p class="text-lg leading-relaxed text-gray-300 animate-fadeInUp delay-200">
+          Experience <span class="text-primary font-semibold">next-level GTA V RP</span> with our meticulously crafted server featuring over 300 custom scripts, a player-driven economy, and daily community events. Our platform combines cutting-edge technology with immersive storytelling for unparalleled roleplay.
+        </p>
+
+        <!-- Feature Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fadeInUp delay-400">
+          <div class="p-5 bg-dark/50 rounded-xl border border-primary/10 hover:border-primary/30 transition duration-300">
+            <div class="flex items-center gap-4">
+              <div class="p-3 bg-primary/10 rounded-lg">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold">Custom Framework</h3>
+            </div>
+            <p class="mt-2 text-gray-400">Fully customized QBCore framework, optimized for smooth, immersive, and dynamic roleplay experiences.</p>
+          </div>
+
+          <div class="p-5 bg-dark/50 rounded-xl border border-primary/10 hover:border-primary/30 transition duration-300">
+            <div class="flex items-center gap-4">
+              <div class="p-3 bg-primary/10 rounded-lg">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold">Advanced Anti-Cheat</h3>
+            </div>
+            <p class="mt-2 text-gray-400">Advanced Anti-Cheat – Robust protection against modders, exploiters, and unfair gameplay advantages.</p>
+          </div>
+        </div>
+
+        
+
+        <!-- CTA Button -->
+<div class="animate-fadeInUp delay-600">
+  <a href="#join" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary to-accent rounded-full font-bold text-white hover:shadow-xl transition-all duration-300 hover:scale-105">
+    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/>
+    </svg>
+    Join Our Community
+  </a>
+</div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 animate-fadeInUp delay-800">
+      <div class="text-center p-6 bg-dark/50 rounded-xl border border-primary/10 hover:border-primary/30 transition duration-300">
+        <div class="text-3xl font-bold text-primary mb-2">300+</div>
+        <div class="text-gray-400 uppercase text-sm tracking-wider">Custom Scripts</div>
+      </div>
+      <div class="text-center p-6 bg-dark/50 rounded-xl border border-primary/10 hover:border-primary/30 transition duration-300">
+        <div class="text-3xl font-bold text-accent mb-2">24/7</div>
+        <div class="text-gray-400 uppercase text-sm tracking-wider">Active Support</div>
+      </div>
+      <div class="text-center p-6 bg-dark/50 rounded-xl border border-primary/10 hover:border-primary/30 transition duration-300">
+        <div class="text-3xl font-bold text-primary mb-2">150+</div>
+        <div class="text-gray-400 uppercase text-sm tracking-wider">Unique Vehicles</div>
+      </div>
+      <div class="text-center p-6 bg-dark/50 rounded-xl border border-primary/10 hover:border-primary/30 transition duration-300">
+        <div class="text-3xl font-bold text-accent mb-2">99.9%</div>
+        <div class="text-gray-400 uppercase text-sm tracking-wider">Uptime</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Server Gallery Section -->
+<section id="gallery" class="py-20 bg-dark">
+  <div class="container mx-auto px-4 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4 animate-fadeInUp">
+        Server <span class="text-primary">Gallery</span>
+      </h2>
+      <p class="text-gray-400 max-w-2xl mx-auto animate-fadeInUp delay-200">
+        Check out snapshots of our lively community and the unforgettable moments that make our gameplay truly immersive.
+      </p>
+    </div>
+
+    <!-- Gallery Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- Gallery Item Template - Copy this to add new images -->
+      <div class="group relative overflow-hidden rounded-lg shadow-xl transition-transform duration-300 hover:scale-105">
+        <img 
+          src="images/gallery/fivem-gal-1.png" 
+          alt="Server screenshot 1" 
+          class="w-full h-48 object-cover"
+          loading="lazy"
+        >
+        <!-- Hover Overlay -->
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div class="text-center">
+            <h3 class="text-white font-bold mb-2">Active EMS/LEO</h3>
+            <p class="text-gray-300 text-sm">Responsive teams with everything they need, from tools to dispatch, for smooth and efficient emergency and law enforcement operations.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Picture #2 -->
+      <div class="group relative overflow-hidden rounded-lg shadow-xl transition-transform duration-300 hover:scale-105">
+        <img 
+          src="images/gallery/fivem-gal-2.png" 
+          alt="Server screenshot 2" 
+          class="w-full h-48 object-cover"
+          loading="lazy"
+        >
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div class="text-center">
+            <h3 class="text-white font-bold mb-2">Police Department</h3>
+            <p class="text-gray-300 text-sm">A complete law enforcement HQ with advanced tools, dispatch, and mission control for a smooth policing experience.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Picture #3 -->
+      <div class="group relative overflow-hidden rounded-lg shadow-xl transition-transform duration-300 hover:scale-105">
+        <img 
+          src="images/gallery/fivem-gal-3.jpg" 
+          alt="Server screenshot 2" 
+          class="w-full h-48 object-cover"
+          loading="lazy"
+        >
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div class="text-center">
+            <h3 class="text-white font-bold mb-2">Custom Vehicles</h3>
+            <p class="text-gray-300 text-sm">Unique, fully customizable vehicles with detailed tuning options for a personalized driving experience.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Picture #4 -->
+      <div class="group relative overflow-hidden rounded-lg shadow-xl transition-transform duration-300 hover:scale-105">
+        <img 
+          src="images/gallery/fivem-gal-4.png" 
+          alt="Server screenshot 2" 
+          class="w-full h-48 object-cover"
+          loading="lazy"
+        >
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div class="text-center">
+            <h3 class="text-white font-bold mb-2">Custom Scripts</h3>
+            <p class="text-gray-300 text-sm">Tailored, unique scripts designed to enhance your gameplay with new features, improved mechanics, and a personalized touch for a truly one-of-a-kind experience.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Picture #5 CHANGE -->
+      <div class="group relative overflow-hidden rounded-lg shadow-xl transition-transform duration-300 hover:scale-105">
+        <img 
+          src="images/gallery/changelogo.png" 
+          alt="Server screenshot 2" 
+          class="w-full h-48 object-cover"
+          loading="lazy"
+        >
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div class="text-center">
+            <h3 class="text-white font-bold mb-2">CHANGE-ME</h3>
+            <p class="text-gray-300 text-sm"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Picture #6 CHANGE -->
+      <div class="group relative overflow-hidden rounded-lg shadow-xl transition-transform duration-300 hover:scale-105">
+        <img 
+          src="images/gallery/changelogo.png" 
+          alt="Server screenshot 2" 
+          class="w-full h-48 object-cover"
+          loading="lazy"
+        >
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div class="text-center">
+            <h3 class="text-white font-bold mb-2">CHANGE-ME</h3>
+            <p class="text-gray-300 text-sm"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Picture #7 CHANGE -->
+      <div class="group relative overflow-hidden rounded-lg shadow-xl transition-transform duration-300 hover:scale-105">
+        <img 
+          src="images/gallery/changelogo.png" 
+          alt="Server screenshot 2" 
+          class="w-full h-48 object-cover"
+          loading="lazy"
+        >
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div class="text-center">
+            <h3 class="text-white font-bold mb-2">CHANGE-ME</h3>
+            <p class="text-gray-300 text-sm"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Picture #8 CHANGE -->
+      <div class="group relative overflow-hidden rounded-lg shadow-xl transition-transform duration-300 hover:scale-105">
+        <img 
+          src="images/gallery/changelogo.png" 
+          alt="Server screenshot 2" 
+          class="w-full h-48 object-cover"
+          loading="lazy"
+        >
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+          <div class="text-center">
+            <h3 class="text-white font-bold mb-2">CHANGE-ME</h3>
+            <p class="text-gray-300 text-sm"></p>
+          </div>
+        </div>
+      </div>      
+
+    <!-- Load More Button (Optional) 
+    <div class="mt-12 text-center animate-fadeInUp delay-400">
+      <button class="bg-primary/20 text-primary px-8 py-3 rounded-full hover:bg-primary/30 transition-colors duration-300">
+        Load More
+      </button>
+    </div> -->
+  </div>
+</section> 
+
+<!-- Add between sections -->
+<div class="h-1 bg-gradient-to-r from-primary to-accent"></div>
+
+<!-- Join Server Section -->
+<section id="join" class="relative py-28 overflow-hidden">
+  <!-- Animated Background Elements -->
+  <div class="absolute inset-0 z-0">
+      <div class="absolute -top-20 -left-20 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl animate-float"></div>
+      <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl animate-float-delayed"></div>
+  </div>
+
+  <div class="container mx-auto px-4 lg:px-8 relative z-10">
+      <div class="max-w-4xl mx-auto text-center">
+          <h2 class="text-4xl md:text-5xl font-bold mb-6">
+              Ready to <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Join</span>?
+          </h2>
+          <p class="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
+            Join our FiveM server and dive into your roleplay adventure today! Experience custom features, immersive gameplay, and a vibrant community ready to welcome you.
+          </p>
+
+          <!-- Server IP Card -->
+          <div class="group relative bg-dark/50 backdrop-blur-lg border-2 border-primary/20 rounded-2xl p-8 mb-12 transform transition-all hover:border-primary/50 hover:scale-102">
+              <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div class="text-left">
+                      <h3 class="text-2xl font-bold mb-2">Server Connection</h3>
+                      <p class="text-gray-400">Copy this IP to your FiveM client</p>
+                  </div>
+                  <div class="flex items-center gap-4">
+                      <code id="server-ip" class="text-2xl font-mono font-bold bg-dark px-6 py-3 rounded-lg border border-primary/20">
+                          play.ghostnodesrp.com
+                      </code>
+                      <button onclick="copyIP()" 
+                              class="px-5 py-3 bg-primary/10 hover:bg-primary/20 rounded-lg transition-all group/copy"
+                              data-tooltip="Click to copy!">
+                          <svg class="w-6 h-6 text-primary group-hover/copy:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                          </svg>
+                      </button>
+                  </div>
+              </div>
+              <!-- Copy Feedback -->
+              <div id="copy-feedback" class="absolute bottom-4 right-4 text-sm text-primary opacity-0 transition-opacity"></div>
+          </div>
+
+          <!-- Connection Steps -->
+          <div class="grid md:grid-cols-3 gap-8 mb-16">
+              <div class="p-6 bg-dark/50 backdrop-blur-sm rounded-xl border border-primary/10 hover:border-primary/30 transition-all">
+                  <div class="text-primary mb-4 text-4xl">1</div>
+                  <h3 class="text-xl font-bold mb-2">Launch FiveM</h3>
+                  <p class="text-gray-400">Open FiveM and navigate to the servers tab</p>
+              </div>
+              <div class="p-6 bg-dark/50 backdrop-blur-sm rounded-xl border border-primary/10 hover:border-primary/30 transition-all">
+                  <div class="text-primary mb-4 text-4xl">2</div>
+                  <h3 class="text-xl font-bold mb-2">Connect</h3>
+                  <p class="text-gray-400">Click "Direct Connect" and paste our IP</p>
+              </div>
+              <div class="p-6 bg-dark/50 backdrop-blur-sm rounded-xl border border-primary/10 hover:border-primary/30 transition-all">
+                  <div class="text-primary mb-4 text-4xl">3</div>
+                  <h3 class="text-xl font-bold mb-2">Play</h3>
+                  <p class="text-gray-400">Complete quick setup and start roleplaying!</p>
+              </div>
+          </div>
+
+          <!-- Discord CTA -->
+          <div class="bg-gradient-to-r from-[#5865F2] to-[#4752C4] rounded-2xl p-8 shadow-xl">
+              <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div class="text-left">
+                      <h3 class="text-2xl font-bold mb-2">Join Our Discord</h3>
+                      <p class="text-gray-200">Get support, updates, and connect with our community</p>
+                  </div>
+                  <a href="https://discord.gg/your-invite" 
+                     target="_blank" 
+                     class="px-8 py-3 bg-white text-[#5865F2] rounded-lg font-bold hover:scale-105 transition-transform flex items-center gap-2">
+                      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/>
+                      </svg>
+                      Join Discord
+                  </a>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<script>
+function copyIP() {
+  const ip = document.getElementById('server-ip');
+  const feedback = document.getElementById('copy-feedback');
+  
+  navigator.clipboard.writeText(ip.innerText).then(() => {
+      feedback.innerText = "Copied!";
+      feedback.classList.remove('opacity-0');
+      setTimeout(() => feedback.classList.add('opacity-0'), 2000);
+  }).catch(err => {
+      feedback.innerText = "Failed to copy";
+      feedback.classList.remove('opacity-0');
+      setTimeout(() => feedback.classList.add('opacity-0'), 2000);
+  });
+}
+</script>
+
+<style>
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 8s ease-in-out 1s infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4f46e5;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  margin-bottom: 8px;
+}
+</style>
+
+
+
+<!-- Staff Section -->
+<section id="staff" class="relative py-20 overflow-hidden">
+  <!-- Animated Background -->
+  <div class="absolute inset-0 z-0">
+      <div class="absolute top-0 left-0 w-full h-full opacity-5 bg-gradient-to-br from-primary/20 to-accent/20"></div>
+      <div class="absolute -top-32 -left-32 w-96 h-96 bg-primary/10 rounded-full animate-rotate"></div>
+      <div class="absolute -bottom-48 -right-48 w-96 h-96 bg-accent/10 rounded-full animate-rotate reverse"></div>
+  </div>
+
+  <div class="container mx-auto px-4 lg:px-8 relative z-10">
+      <!-- Section Header -->
+      <div class="text-center mb-16 space-y-6">
+          <div class="inline-flex items-center gap-4 text-primary animate-fadeIn">
+              <span class="h-px w-16 bg-current"></span>
+              <span class="text-sm uppercase tracking-widest">Leadership Team</span>
+              <span class="h-px w-16 bg-current"></span>
+          </div>
+          <h2 class="text-3xl md:text-5xl font-bold mb-4">
+              The <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Architects</span>
+              <br>of Your Experience
+          </h2>
+      </div>
+
+      <!-- Staff Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <!-- Staff Card 1 -->
+          <div class="group relative isolate h-[420px] bg-dark/50 backdrop-blur-lg rounded-3xl border border-primary/10 hover:border-primary/20 transition-all overflow-hidden">
+              <!-- Dynamic Background -->
+              <div class="absolute inset-0 -z-10">
+                  <div class="absolute inset-0 bg-gradient-to-t from-dark via-dark/40 to-transparent"></div>
+                  <div class="absolute inset-0 bg-noise opacity-10"></div>
+              </div>
+
+              <!-- Content -->
+              <div class="h-full flex flex-col items-center pt-8 px-6">
+                  <!-- Role Chip -->
+                  <div class="mb-4 px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                      Owner
+                  </div>
+
+                  <!-- Avatar Container -->
+                  <div class="relative mb-6">
+                      <div class="absolute -inset-4 bg-gradient-to-r from-primary to-accent rounded-full opacity-0 group-hover:opacity-20 blur-xl transition-opacity"></div>
+                      <img src="images/staff/ghostnode-nobg.png" 
+                          class="w-28 h-28 rounded-full border-4 border-primary/20 hover:border-primary/50 transition-all object-cover"
+                          alt="Ghost Nodes">
+                  </div>
+
+                  <!-- Profile -->
+                  <div class="text-center mb-6">
+                      <h3 class="text-xl font-bold mb-2">GHOST NODES</h3>
+                      <p class="text-gray-400 text-sm">Lead Developer / Owner</p>
+                  </div>
+
+                  <!-- Stats -->
+                  <div class="w-full grid grid-cols-3 gap-4 mb-6">
+                      <div class="text-center">
+                          <div class="text-2xl font-bold text-primary">5.0</div>
+                          <div class="text-xs text-gray-400 uppercase mt-1">Rating</div>
+                      </div>
+                      <div class="text-center">
+                          <div class="text-2xl font-bold text-primary">22/03/25</div>
+                          <div class="text-xs text-gray-400 uppercase mt-1">Joined</div>
+                      </div>
+                      <div class="text-center">
+                          <div class="text-2xl font-bold text-primary">100%</div>
+                          <div class="text-xs text-gray-400 uppercase mt-1">Active</div>
+                      </div>
+                  </div>
+
+                  <!-- Social Links -->
+                  <div class="flex gap-3 mt-auto mb-6">
+                      <a href="#" class="p-2 rounded-full bg-dark hover:bg-primary/10 transition-colors">
+                          <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/>
+                          </svg>
+                      </a>
+                  </div>
+              </div>
+
+              <!-- Hover Bio -->
+              <div class="absolute inset-0 p-6 bg-gradient-to-t from-dark via-dark/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end">
+                  <p class="text-sm text-gray-300 leading-relaxed">
+                      From skilled developers crafting custom scripts to responsive moderators maintaining a safe and fair environment, our staff is always here to support you.
+                  </p>
+              </div>
+          </div>
+
+          <!-- Staff Card 2 -->
+          <div class="group relative isolate h-[420px] bg-dark/50 backdrop-blur-lg rounded-3xl border border-primary/10 hover:border-primary/20 transition-all overflow-hidden">
+              <!-- ... (Same structure as Card 1 with different content) ... -->
+               <!-- Dynamic Background -->
+              <div class="absolute inset-0 -z-10">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark via-dark/40 to-transparent"></div>
+                <div class="absolute inset-0 bg-noise opacity-10"></div>
+            </div>
+
+            <!-- Content -->
+            <div class="h-full flex flex-col items-center pt-8 px-6">
+                <!-- Role Chip -->
+                <div class="mb-4 px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                    Owner
+                </div>
+
+                <!-- Avatar Container -->
+                <div class="relative mb-6">
+                    <div class="absolute -inset-4 bg-gradient-to-r from-primary to-accent rounded-full opacity-0 group-hover:opacity-20 blur-xl transition-opacity"></div>
+                    <img src="images/staff/ghostnode-nobg.png" 
+                        class="w-28 h-28 rounded-full border-4 border-primary/20 hover:border-primary/50 transition-all object-cover"
+                        alt="Ghost Nodes">
+                </div>
+
+                <!-- Profile -->
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-bold mb-2">IS THE</h3>
+                    <p class="text-gray-400 text-sm">Lead Developer / Owner</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="w-full grid grid-cols-3 gap-4 mb-6">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-primary">5.0</div>
+                        <div class="text-xs text-gray-400 uppercase mt-1">Rating</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-primary">22/03/25</div>
+                        <div class="text-xs text-gray-400 uppercase mt-1">Joined</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-primary">100%</div>
+                        <div class="text-xs text-gray-400 uppercase mt-1">Active</div>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="flex gap-3 mt-auto mb-6">
+                    <a href="#" class="p-2 rounded-full bg-dark hover:bg-primary/10 transition-colors">
+                        <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Hover Bio -->
+            <div class="absolute inset-0 p-6 bg-gradient-to-t from-dark via-dark/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end">
+                <p class="text-sm text-gray-300 leading-relaxed">
+                    From skilled developers crafting custom scripts to responsive moderators maintaining a safe and fair environment, our staff is always here to support you.
+                </p>
+            </div>
+        </div>
+
+          <!-- Staff Card 3 -->
+          <div class="group relative isolate h-[420px] bg-dark/50 backdrop-blur-lg rounded-3xl border border-primary/10 hover:border-primary/20 transition-all overflow-hidden">
+              <!-- Dynamic Background -->
+              <div class="absolute inset-0 -z-10">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark via-dark/40 to-transparent"></div>
+                <div class="absolute inset-0 bg-noise opacity-10"></div>
+            </div>
+
+            <!-- Content -->
+            <div class="h-full flex flex-col items-center pt-8 px-6">
+                <!-- Role Chip -->
+                <div class="mb-4 px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                    Owner
+                </div>
+
+                <!-- Avatar Container -->
+                <div class="relative mb-6">
+                    <div class="absolute -inset-4 bg-gradient-to-r from-primary to-accent rounded-full opacity-0 group-hover:opacity-20 blur-xl transition-opacity"></div>
+                    <img src="images/staff/ghostnode-nobg.png" 
+                        class="w-28 h-28 rounded-full border-4 border-primary/20 hover:border-primary/50 transition-all object-cover"
+                        alt="Ghost Nodes">
+                </div>
+
+                <!-- Profile -->
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-bold mb-2">BEST</h3>
+                    <p class="text-gray-400 text-sm">Lead Developer / Owner</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="w-full grid grid-cols-3 gap-4 mb-6">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-primary">5.0</div>
+                        <div class="text-xs text-gray-400 uppercase mt-1">Rating</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-primary">22/03/25</div>
+                        <div class="text-xs text-gray-400 uppercase mt-1">Joined</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-primary">100%</div>
+                        <div class="text-xs text-gray-400 uppercase mt-1">Active</div>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="flex gap-3 mt-auto mb-6">
+                    <a href="#" class="p-2 rounded-full bg-dark hover:bg-primary/10 transition-colors">
+                        <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Hover Bio -->
+            <div class="absolute inset-0 p-6 bg-gradient-to-t from-dark via-dark/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end">
+                <p class="text-sm text-gray-300 leading-relaxed">
+                    From skilled developers crafting custom scripts to responsive moderators maintaining a safe and fair environment, our staff is always here to support you.
+                </p>
+            </div>
+        </div>
+</section>
+
+<style>
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-rotate {
+  animation: rotate 40s linear infinite;
+}
+
+.reverse {
+  animation-direction: reverse;
+}
+
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.animate-fadeIn {
+  animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<!-- Add between sections -->
+<div class="h-1 bg-gradient-to-r from-primary to-accent"></div>
+
+    <!-- Testimonials Section -->
+<section id="testimonials" class="relative py-28 overflow-hidden">
+  <!-- Animated Background -->
+  <div class="absolute inset-0 z-0">
+      <div class="absolute -top-32 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float"></div>
+      <div class="absolute bottom-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-float-delayed"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-dark/95 via-dark/70 to-dark/95"></div>
+  </div>
+
+  <div class="container mx-auto px-4 relative z-10">
+      <div class="text-center mb-20">
+          <h2 class="text-4xl md:text-6xl font-bold mb-6">
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Community</span> 
+              Reviews
+          </h2>
+          <p class="text-lg text-gray-400 max-w-2xl mx-auto">
+            Join thousands of players who’ve discovered their ultimate roleplay home and become part of an unforgettable community.
+          </p>
+      </div>
+
+      <!-- Testimonials Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+          <!-- Testimonial Card 1 -->
+          <div class="group relative bg-dark/50 backdrop-blur-lg rounded-2xl p-8 border border-primary/10 hover:border-primary/20 transition-all duration-500 hover:-translate-y-2">
+               <!-- Dynamic Glow Effect -->
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
+            
+            <div class="relative space-y-6">
+                <!-- Header -->
+                <div class="flex items-center gap-5">
+                    <div class="relative flex-shrink-0">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full opacity-0 group-hover:opacity-30 blur-lg transition-opacity"></div>
+                        <img src="https://i.pravatar.cc/150?img=1" 
+                             class="w-14 h-14 rounded-full border-2 border-primary/20 object-cover" 
+                             alt="Alex Rodriguez">
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-100">Alex Rodriguez</h3>
+                        <p class="text-sm text-primary">Professional Racer</p>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="space-y-4">
+                    <div class="flex text-yellow-400">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-300 leading-relaxed italic relative pl-6 before:content-['"'] before:absolute before:left-0 before:text-4xl before:text-primary/40 before:-top-2 before:font-serif">
+                        The custom scripts and immersive gameplay have completely changed my FiveM experience. Every session feels like stepping into a living, breathing world full of possibilities.
+                    </p>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex items-center justify-between border-t border-primary/10 pt-4">
+                    <span class="text-sm text-gray-400">150+ hours played</span>
+                    <svg class="w-8 h-8 text-primary/30 group-hover:text-primary/50 transition-colors" 
+                         fill="currentColor" 
+                         viewBox="0 0 24 24">
+                        <path d="M13 14.725c0-5.141 3.892-10.519 10-11.725l.984 2.126c-2.215.835-4.163 3.742-4.38 5.746 2.491.392 4.396 2.547 4.396 5.149 0 3.182-2.584 4.979-5.199 4.979-3.015 0-5.801-2.305-5.801-6.275zm-13 0c0-5.141 3.892-10.519 10-11.725l.984 2.126c-2.215.835-4.163 3.742-4.38 5.746 2.491.392 4.396 2.547 4.396 5.149 0 3.182-2.584 4.979-5.199 4.979-3.015 0-5.801-2.305-5.801-6.275z"/>
+                    </svg>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Testimonial Card 2 -->
+          <div class="group relative bg-dark/50 backdrop-blur-lg rounded-2xl p-8 border border-primary/10 hover:border-primary/20 transition-all duration-500 hover:-translate-y-2">
+              <!-- Dynamic Glow Effect -->
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
+            
+            <div class="relative space-y-6">
+                <!-- Header -->
+                <div class="flex items-center gap-5">
+                    <div class="relative flex-shrink-0">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full opacity-0 group-hover:opacity-30 blur-lg transition-opacity"></div>
+                        <img src="https://i.pravatar.cc/150?img=1" 
+                             class="w-14 h-14 rounded-full border-2 border-primary/20 object-cover" 
+                             alt="Alex Rodriguez">
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-100">Alex Rodriguez</h3>
+                        <p class="text-sm text-primary">Professional Racer</p>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="space-y-4">
+                    <div class="flex text-yellow-400">
+                        ★★★★★
+                    </div>
+                    <p class="text-gray-300 leading-relaxed italic relative pl-6 before:content-['"'] before:absolute before:left-0 before:text-4xl before:text-primary/40 before:-top-2 before:font-serif">
+                        The custom scripts and immersive gameplay have completely changed my FiveM experience. Every session feels like stepping into a living, breathing world full of possibilities.
+                    </p>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex items-center justify-between border-t border-primary/10 pt-4">
+                    <span class="text-sm text-gray-400">150+ hours played</span>
+                    <svg class="w-8 h-8 text-primary/30 group-hover:text-primary/50 transition-colors" 
+                         fill="currentColor" 
+                         viewBox="0 0 24 24">
+                        <path d="M13 14.725c0-5.141 3.892-10.519 10-11.725l.984 2.126c-2.215.835-4.163 3.742-4.38 5.746 2.491.392 4.396 2.547 4.396 5.149 0 3.182-2.584 4.979-5.199 4.979-3.015 0-5.801-2.305-5.801-6.275zm-13 0c0-5.141 3.892-10.519 10-11.725l.984 2.126c-2.215.835-4.163 3.742-4.38 5.746 2.491.392 4.396 2.547 4.396 5.149 0 3.182-2.584 4.979-5.199 4.979-3.015 0-5.801-2.305-5.801-6.275z"/>
+                    </svg>
+                  </div>
+              </div>
+          </div>
+          </div>
+
+      <!-- Stats Counter -->
+      <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-center">
+          <div class="p-6 bg-dark/50 rounded-xl">
+              <div class="text-3xl font-bold text-primary">4.9/5</div>
+              <div class="text-sm text-gray-400">Average Rating</div>
+          </div>
+          <div class="p-6 bg-dark/50 rounded-xl">
+              <div class="text-3xl font-bold text-primary">2.5k+</div>
+              <div class="text-sm text-gray-400">Active Players</div>
+          </div>
+          <div class="p-6 bg-dark/50 rounded-xl">
+              <div class="text-3xl font-bold text-primary">98%</div>
+              <div class="text-sm text-gray-400">Positive Feedback</div>
+          </div>
+          <div class="p-6 bg-dark/50 rounded-xl">
+              <div class="text-3xl font-bold text-primary">24/7</div>
+              <div class="text-sm text-gray-400">Support</div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<style>
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 6s ease-in-out 1s infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+[class*="before:"] {
+  position: relative;
+}
+</style>
+
+    <!-- Footer Section -->
+<footer class="relative bg-dark border-t border-primary/10 overflow-hidden">
+  <!-- Animated Background -->
+  <div class="absolute inset-0 z-0">
+      <div class="absolute -top-32 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float"></div>
+      <div class="absolute bottom-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-float-delayed"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-dark/95 via-dark/70 to-dark/95"></div>
+      <div class="absolute inset-0 opacity-5 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjNDA0MDQwIi8+PHBhdGggZD0iTTAgMGgzMHYzMEgweiIgZmlsbC1vcGFjaXR5PSIwLjEiLz48cGF0aCBkPSJNMzAgMzBoMzB2MzBIMzB6IiBmaWxsLW9wYWNpdHk9IjAuMSIvPjwvc3ZnPg==')]"></div>
+  </div>
+
+  <div class="container mx-auto px-4 lg:px-8 py-16 relative z-10">
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-8 xl:gap-12">
+          <!-- Logo & Newsletter -->
+          <div class="md:col-span-2 space-y-8">
+              <div class="group relative">
+                  <div class="absolute -inset-2 bg-gradient-to-r from-primary to-accent rounded-xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity"></div>
+                  <a href="#" class="flex items-center gap-3 transform group-hover:-rotate-1 transition-transform">
+                      <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                      </svg>
+                      <span class="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                          GhostNodes RP
+                      </span>
+                  </a>
+              </div>
+              
+              <!-- Newsletter -->
+              <div class="space-y-4">
+                  <h3 class="text-lg font-bold text-primary">Crafting immersive FiveM experiences since 2025. Join our growing community of passionate roleplayers and be part of a vibrant world filled with endless possibilities, exciting adventures, and lasting friendships.</h3>
+              </div>
+          </div>
+
+          <!-- Server Status -->
+          <div class="md:col-span-1">
+              <div class="p-6 bg-dark/50 backdrop-blur-sm rounded-xl border border-primary/20">
+                  <h3 class="text-lg font-bold text-primary mb-4">Server Status</h3>
+                  <div class="flex items-center gap-3">
+                      <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                      <div>
+                          <p class="text-gray-100 font-medium">Online</p>
+                          <p class="text-sm text-gray-400">250 players connected</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="md:col-span-1">
+              <h3 class="text-lg font-bold text-primary mb-6">Explore</h3>
+              <nav class="grid grid-cols-2 gap-4">
+                  <a href="#features" class="text-gray-400 hover:text-primary transition-colors group">
+                      Features
+                      <span class="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300"></span>
+                  </a>
+                  <a href="#gallery" class="text-gray-400 hover:text-primary transition-colors group">
+                      Gallery
+                      <span class="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300"></span>
+                  </a>
+                  <a href="#staff" class="text-gray-400 hover:text-primary transition-colors group">
+                      Team
+                      <span class="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300"></span>
+                  </a>
+                  <a href="#rules" class="text-gray-400 hover:text-primary transition-colors group">
+                      Rules
+                      <span class="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300"></span>
+                  </a>
+              </nav>
+          </div>
+
+          <!-- Social & Support -->
+          <div class="md:col-span-1">
+              <h3 class="text-lg font-bold text-primary mb-6">Connect</h3>
+              <div class="space-y-6">
+                  <div class="flex flex-wrap gap-4">
+                      <a href="#" class="social-icon">
+                          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/>
+                          </svg>
+                      </a>
+                      <!-- Add more social icons -->
+                  </div>
+                  
+                  <!-- Support Card -->
+                  <div class="p-4 bg-dark/50 rounded-lg border border-primary/20 hover:border-primary/40 transition-colors">
+                      <p class="text-sm text-gray-400 mb-2">Need help?</p>
+                      <a href="mailto:support@ghostnodesrp.com" class="text-primary font-medium hover:underline">
+                          Contact Support →
+                      </a>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Copyright & Back to Top -->
+      <div class="border-t border-primary/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p class="text-sm text-gray-400 text-center">
+              © 2025 GhostNodes Hosting / Services · Crafted with passion · Not affiliated with Rockstar Games
+          </p>
+          <button onclick="window.scrollTo({top:0,behavior:'smooth'})" 
+                  class="px-6 py-2 rounded-full border border-primary/20 hover:border-primary/40 text-primary hover:bg-primary/10 transition-all">
+              Back to Top ↑
+          </button>
+      </div>
+  </div>
+</footer>
+
+    <!-- Particle Animation Script -->
+    <script>
+      const canvas = document.getElementById('particle-canvas');
+      const ctx = canvas.getContext('2d');
+      function resizeCanvas() {
+        canvas.width = document.querySelector('section.parallax').offsetWidth;
+        canvas.height = document.querySelector('section.parallax').offsetHeight;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+      
+      let particles = [];
+      const numParticles = 120;
+      
+      function initParticles() {
+        particles = [];
+        for (let i = 0; i < numParticles; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: (Math.random() - 0.5) * 1.5,
+            size: Math.random() * 2 + 1,
+            alpha: Math.random() * 0.5 + 0.3
+          });
+        }
+      }
+      initParticles();
+      
+      function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+          if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+          
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(200, 150, 255, ${p.alpha})`;
+          ctx.fill();
+        });
+        requestAnimationFrame(animateParticles);
+      }
+      animateParticles();
+    </script>
+  </body>
+</html>
