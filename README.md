@@ -10,3 +10,6 @@ If you encounter any bugs, issues, or need support, feel free to open a ticket i
 🔗 Netlify: https://www.netlify.com/
 
 Made with love - GhostFramework / DEMO - https://fivemwebtemplate.netlify.app/
+
+Images:
+https://i.imgur.com/T12Cw1j.png
